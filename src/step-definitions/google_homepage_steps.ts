@@ -1,29 +1,22 @@
 import { Given, When, Then } from '@cucumber/cucumber';
-import { expect } from '@playwright/test';
-import BrowserManager from '../support/browser';
+import { GoogleHomePage } from '../pages/google_homepage';
 
-Given('I am on the Google homepage', async () => {
-    const page = BrowserManager.getPage();
-    await page.goto('https://www.google.com', { waitUntil: 'domcontentloaded', timeout: 60000 });
-    await page.waitForLoadState('domcontentloaded', { timeout: 60000 });
+Given('I am on the Google homepage', async function (this: any) {
+    const googleHomePage = new GoogleHomePage(this.page);
+    await googleHomePage.navigate();
 });
 
-When('I search for {string} into the search box', async function (searchText: string) {
-    const page = BrowserManager.getPage();
-    const searchBox = page.locator('textarea[name="q"]');
-    await searchBox.waitFor({ state: 'visible', timeout: 60000 });
-    await searchBox.fill(searchText);
+When('I search for {string} into the search box', async function (this: any, searchText: string) {
+    const googleHomePage = new GoogleHomePage(this.page);
+    await googleHomePage.search(searchText);
 });
 
-When('I click the search button', async function () {
-    const page = BrowserManager.getPage();
-    await page.keyboard.press('Enter');
+When('I click the search button', async function (this: any) {
+    const googleHomePage = new GoogleHomePage(this.page);
+    await googleHomePage.pressEnter();
 });
 
-Then('I should see results related to {string}', async function (searchText: string) {
-    const page = BrowserManager.getPage();
-    await page.waitForSelector('#search', { timeout: 60000 });
-
-    const results = await page.locator('body').innerText();
-    expect(results.toLowerCase()).toContain(searchText.toLowerCase());
+Then('I should see results related to {string}', async function (this: any, searchText: string) {
+    const googleHomePage = new GoogleHomePage(this.page);
+    await googleHomePage.verifyResults(searchText);
 });
